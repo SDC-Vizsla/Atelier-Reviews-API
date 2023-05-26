@@ -2,8 +2,9 @@
   "name": "sdc-reviews-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "nodemon server/ETL.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/SDC-Vizsla/SDC-Reviews-API/issues"
   },
-  "homepage": "https://github.com/SDC-Vizsla/SDC-Reviews-API#readme"
+  "homepage": "https://github.com/SDC-Vizsla/SDC-Reviews-API#readme",
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.0.3",
+    "nodemon": "^2.0.22",
+    "pg": "^8.11.0"
+  }
 }
