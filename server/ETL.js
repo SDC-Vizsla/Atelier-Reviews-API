@@ -12,6 +12,7 @@ const pool = new Pool({
   port: process.env.PORT
 });
 
+let transformCounter = 0;
 
 // Function to create database
 const createDatabase = async () => {
@@ -68,7 +69,7 @@ const createSchema = async () => {
 
     const createReviewsTable = `CREATE TABLE IF NOT EXISTS ${process.env.SCHEMA}.reviews (
       id SERIAL PRIMARY KEY,
-      product_id INT UNIQUE,
+      product_id INT,
       rating INT,
       date VARCHAR(25) DEFAULT CURRENT_TIMESTAMP,
       summary VARCHAR(200),
@@ -91,8 +92,7 @@ const createSchema = async () => {
     const createCharacteristicsTable = `CREATE TABLE IF NOT EXISTS ${process.env.SCHEMA}.characteristics (
       id SERIAL PRIMARY KEY,
       product_id INT,
-      name VARCHAR(7),
-      FOREIGN KEY (product_id) REFERENCES ${process.env.SCHEMA}.reviews (product_id)
+      name VARCHAR(7)
     )`;
 
     const createCharacteristicReviewsTable = ` CREATE TABLE IF NOT EXISTS ${process.env.SCHEMA}.characteristic_reviews (
@@ -147,22 +147,25 @@ const createSchema = async () => {
     console.error('error in "createSchema" function: ', err);
   } finally {
     pool.end();
-    transformReviewsData();
+    await transformReviewsData();
+    await transformReviewPhotosData();
+    await transformCharacteristicsData();
+    await transformCharacteristicReviewsData();
   }
 };
 
 
-// Function to transform data
+// Functions to transform data
 const transformReviewsData = async () => {
-  const fromPath = path.join(__dirname, './CSV/reviews.csv');
-  const toPath = path.join(__dirname, './CSV/reviewsTemp.csv');
+  const fromPath = path.join('/tmp/CSV/reviews.csv');
+  const toPath = path.join('/tmp/CSV/reviewsTemp.csv');
 
-  console.log('reviews transforming...');
+  console.log('"reviews" transforming...');
 
   if (fs.existsSync(toPath)) {
     fs.unlink(toPath, (err) => {
       if (err) {
-        console.error('Error deleting file:', err);
+        console.error('Error deleting file: ', err);
         return;
       }
     });
@@ -183,7 +186,119 @@ const transformReviewsData = async () => {
     })
     .on('end', async () => {
       console.log(`Data transformed, location: ${toPath}`);
-      await loadData();
+      transformCounter++;
+
+      if (transformCounter === 4) {
+        await loadData();
+      }
+    });
+};
+
+const transformReviewPhotosData = async () => {
+  const fromPath = path.join('/tmp/CSV/review_photos.csv');
+  const toPath = path.join('/tmp/CSV/review_photosTemp.csv');
+
+  console.log('"review_photos" transforming...');
+
+  if (fs.existsSync(toPath)) {
+    fs.unlink(toPath, (err) => {
+      if (err) {
+        console.error('Error deleting file: ', err);
+        return;
+      }
+    });
+  }
+
+  fs.writeFileSync(toPath, '');
+
+  const writeStream = fs.createWriteStream(toPath, { flag: 'a' });
+
+  fs.createReadStream(fromPath)
+    .pipe(csv())
+    .on('data', (data) => {
+      writeStream.write(
+        `${data.id},${data.review_id},"${data.url}"\n`
+      );
+    })
+    .on('end', async () => {
+      console.log(`Data transformed, location: ${toPath}`);
+      transformCounter++;
+
+      if (transformCounter === 4) {
+        await loadData();
+      }
+    });
+};
+
+const transformCharacteristicsData = async () => {
+  const fromPath = path.join('/tmp/CSV/characteristics.csv');
+  const toPath = path.join('/tmp/CSV/characteristicsTemp.csv');
+
+  console.log('"characteristics" transforming...');
+
+  if (fs.existsSync(toPath)) {
+    fs.unlink(toPath, (err) => {
+      if (err) {
+        console.error('Error deleting file: ', err);
+        return;
+      }
+    });
+  }
+
+  fs.writeFileSync(toPath, '');
+
+  const writeStream = fs.createWriteStream(toPath, { flag: 'a' });
+
+  fs.createReadStream(fromPath)
+    .pipe(csv())
+    .on('data', (data) => {
+      writeStream.write(
+        `${data.id},${data.product_id},"${data.name}"\n`
+      );
+    })
+    .on('end', async () => {
+      console.log(`Data transformed, location: ${toPath}`);
+      transformCounter++;
+
+      if (transformCounter === 4) {
+        await loadData();
+      }
+    });
+};
+
+const transformCharacteristicReviewsData = async () => {
+  const fromPath = path.join('/tmp/CSV/characteristic_reviews.csv');
+  const toPath = path.join('/tmp/CSV/characteristic_reviewsTemp.csv');
+
+  console.log('"characteristic_reviews" transforming...');
+
+  if (fs.existsSync(toPath)) {
+    fs.unlink(toPath, (err) => {
+      if (err) {
+        console.error('Error deleting file: ', err);
+        return;
+      }
+    });
+  }
+
+  fs.writeFileSync(toPath, '');
+
+  const writeStream = fs.createWriteStream(toPath, { flag: 'a' });
+
+  fs.createReadStream(fromPath)
+    .pipe(csv())
+    .on('data', (data) => {
+      writeStream.write(
+        `${data.id},${data.characteristic_id}, ${data.review_id}, ${data.value}\n`
+      );
+    })
+    .on('end', async () => {
+      console.log(`Data transformed, location: ${toPath}`);
+      transformCounter++;
+
+      if (transformCounter === 4) {
+        await loadData();
+      }
     });
 };
 
@@ -201,12 +316,108 @@ const loadData = async () => {
 
     const client = await newPool.connect();
 
+    //load data to reviews
+    console.log(`Extracting from ${path.join('/tmp/CSV/reviewsTemp.csv')} ...`);
+    let startTime = Date.now();
+    await client.query('BEGIN');
+
+    let tableName = `${process.env.SCHEMA}.reviews`;
+    let filePath = path.join('/tmp/CSV/reviewsTemp.csv');
+
+    let copyCommand = `COPY ${tableName} FROM '${filePath}' DELIMITER ',' CSV`;
+
+    await client.query(copyCommand);
+
+    await client.query('COMMIT');
+    let endTime = Date.now();
+    let time = ((endTime - startTime)/1000).toFixed(3);
+    console.log(`Data loaded to "reviews", time used: ${time} seconds`);
+
+    //load data to review_photos
+    console.log(`Extracting from ${path.join('/tmp/CSV/review_photosTemp.csv')} ...`);
+    startTime = Date.now();
+    await client.query('BEGIN');
+
+    tableName = `${process.env.SCHEMA}.review_photos`;
+    filePath = path.join('/tmp/CSV/review_photosTemp.csv');
+
+    copyCommand = `COPY ${tableName} FROM '${filePath}' DELIMITER ',' CSV`;
+
+    await client.query(copyCommand);
+
+    await client.query('COMMIT');
+    endTime = Date.now();
+    time = ((endTime - startTime)/1000).toFixed(3);
+    console.log(`Data loaded to "review_photos", time used: ${time} seconds`);
 
 
+    //load data to characteristics
+    console.log(`Extracting from ${path.join('/tmp/CSV/characteristicsTemp.csv')} ...`);
+    startTime = Date.now();
+    await client.query('BEGIN');
+
+    tableName = `${process.env.SCHEMA}.characteristics`;
+    filePath = path.join('/tmp/CSV/characteristicsTemp.csv');
+
+    copyCommand = `COPY ${tableName} FROM '${filePath}' DELIMITER ',' CSV`;
+
+    await client.query(copyCommand);
+
+    await client.query('COMMIT');
+    endTime = Date.now();
+    time = ((endTime - startTime)/1000).toFixed(3);
+    console.log(`Data loaded to "characteristics", time used: ${time} seconds`);
+
+    //load data to characteristic_reviews
+    console.log(`Extracting from ${path.join('/tmp/CSV/characteristic_reviewsTemp.csv')} ...`);
+    startTime = Date.now();
+    await client.query('BEGIN');
+
+    tableName = `${process.env.SCHEMA}.characteristic_reviews`;
+    filePath = path.join('/tmp/CSV/characteristic_reviewsTemp.csv');
+
+    copyCommand = `COPY ${tableName} FROM '${filePath}' DELIMITER ',' CSV`;
+
+    await client.query(copyCommand);
+
+    await client.query('COMMIT');
+    endTime = Date.now();
+    time = ((endTime - startTime)/1000).toFixed(3);
+    console.log(`Data loaded to "characteristic_reviewsTemp", time used: ${time} seconds`);
+
+    client.release();
   } catch (err) {
     console.error('error in "loadData" function: ', err);
   } finally {
     console.log('data finished loading!');
+
+    fs.unlink(path.join('/tmp/CSV/reviewsTemp.csv'), (err) =>{
+      if (err) {
+        console.error('Error deleting file:', err);
+        return;
+      }
+    });
+
+    fs.unlink(path.join('/tmp/CSV/review_photosTemp.csv'), (err) =>{
+      if (err) {
+        console.error('Error deleting file:', err);
+        return;
+      }
+    });
+
+    fs.unlink(path.join('/tmp/CSV/characteristicsTemp.csv'), (err) =>{
+      if (err) {
+        console.error('Error deleting file:', err);
+        return;
+      }
+    });
+
+    fs.unlink(path.join('/tmp/CSV/characteristic_reviewsTemp.csv'), (err) =>{
+      if (err) {
+        console.error('Error deleting file:', err);
+        return;
+      }
+    });
   }
 };
 
