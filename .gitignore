@@ -2,6 +2,4 @@
 .DS_Store
 node_modules
 server/CSV
-ogETL.js
-ETL AWS.js
-ETL LOCAL.js
+server/temp
