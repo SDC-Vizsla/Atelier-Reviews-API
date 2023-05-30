@@ -155,7 +155,70 @@ const connectCharacteristicReviewsTable = async (sequelize) => {
 
 module.exports = {
   getReviews: (req, res) => {
-    res.send('hi');
+    if (!req.query.product_id || req.query.product_id > 1000011) {
+      return res.status(500).send('Internal Server Error');
+    } else {
+      let page = req.query.page || 1;
+      let count = req.query.count || 5;
+      let sort = req.query.sort || [['helpfulness', 'DESC']];
+      let product_id = req.query.product_id;
+
+      connectDatabase()
+        .then((sequelize) => {
+          connectReviewsTable(sequelize)
+            .then((reviewsData) => {
+              connectReviewPhotosTable(sequelize)
+                .then((reviewPhotosData) => {
+                  reviewsData.hasMany(reviewPhotosData, {foreignKey: 'review_id'});
+                  reviewPhotosData.belongsTo(reviewsData, {foreignKey: 'review_id'});
+
+                  let response = {};
+
+
+
+                  reviewsData.findAll({
+                    where: {
+                      product_id: product_id
+                    },
+                    limit: count,
+                    offset: (page - 1) * count,
+                    order: sort
+                  })
+                    .then((reviews) => {
+                      res.send(reviews);
+                    })
+                    .catch((err) => {
+                      console.error('Error retrieving reviews:', err);
+                      res.status(500).send('Internal Server Error');
+                    });
+
+
+
+                })
+                .catch((err) => console.error('Error connecting to "review_photos" table!: ', err))
+            })
+            .catch((err) => console.error('Error connecting to "reviews" table!: ', err));
+        })
+        .catch((err) => console.error('Error connecting to database!: ', err));
+
+
+      // connectDatabase()
+      //   .then((sequelize) => {
+      //     connectReviewsTable(sequelize)
+      //       .then((reviewsData) => {
+      //         connectReviewPhotosTable(sequelize)
+      //           .then((reviewPhotosData) => {
+      //             // reviewsData.hasMany(reviewPhotosData, {foreignKey});
+      //             reviewsData.hasMany(ReviewPhoto, { foreignKey: 'review_id' });
+      //             reviewPhotosData.belongsTo(Review, { foreignKey: 'review_id' });
+      //             let result = {};
+      //           })
+      //           .catch((err) => console.error('Error connecting to "review_photos" table!: ', err));
+      //       })
+      //       .catch((err) => console.error('Error connecting to "reviews" table!: ', err));
+      //   })
+      //   .catch((err) => console.error('Error connecting to database!: ', err));
+    }
   },
   getReviewsMeta: (req, res) => {
 
