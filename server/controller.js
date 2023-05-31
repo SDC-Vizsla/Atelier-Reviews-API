@@ -155,6 +155,8 @@ const connectCharacteristicReviewsTable = async (sequelize) => {
 
 module.exports = {
   getReviews: (req, res) => {
+    let startTime = performance.now();
+
     if (!req.query.product_id || req.query.product_id > 1000011) {
       return res.status(500).send('Internal Server Error');
     } else {
@@ -172,52 +174,67 @@ module.exports = {
                   reviewsData.hasMany(reviewPhotosData, {foreignKey: 'review_id'});
                   reviewPhotosData.belongsTo(reviewsData, {foreignKey: 'review_id'});
 
-                  let response = {};
-
-
+                  let queryResponse = {
+                    product: product_id,
+                    page: page,
+                    count: count,
+                    results: []
+                  };
 
                   reviewsData.findAll({
                     where: {
                       product_id: product_id
                     },
+                    include: [{
+                      model: reviewPhotosData
+                    }],
                     limit: count,
                     offset: (page - 1) * count,
                     order: sort
                   })
                     .then((reviews) => {
-                      res.send(reviews);
+                      reviews.map((review) => {
+                        let reviewTemp = {
+                          review_id: review.id,
+                          rating: review.rating,
+                          summary: review.summary,
+                          recommend: review.recommend,
+                          response: review.response,
+                          body: review.body,
+                          date: review.date,
+                          reviewer_name: review.reviewer_name,
+                          helpfulness: review.helpfulness,
+                          photos: []
+                        };
+
+                        review.review_photos.map((photo) => {
+                          let photoTemp = {
+                            id: photo.id,
+                            url: photo.url
+                          };
+
+                          reviewTemp.photos.push(photoTemp);
+                        });
+
+                        queryResponse.results.push(reviewTemp);
+                      });
+
+                      let endTime = performance.now();
+                      let time = ((endTime - startTime)/1000).toFixed(3);
+                      console.log('time lapsed during search query: ', time)
+
+                      res.send(queryResponse);
                     })
                     .catch((err) => {
                       console.error('Error retrieving reviews:', err);
                       res.status(500).send('Internal Server Error');
                     });
-
-
-
                 })
                 .catch((err) => console.error('Error connecting to "review_photos" table!: ', err))
             })
             .catch((err) => console.error('Error connecting to "reviews" table!: ', err));
         })
         .catch((err) => console.error('Error connecting to database!: ', err));
-
-
-      // connectDatabase()
-      //   .then((sequelize) => {
-      //     connectReviewsTable(sequelize)
-      //       .then((reviewsData) => {
-      //         connectReviewPhotosTable(sequelize)
-      //           .then((reviewPhotosData) => {
-      //             // reviewsData.hasMany(reviewPhotosData, {foreignKey});
-      //             reviewsData.hasMany(ReviewPhoto, { foreignKey: 'review_id' });
-      //             reviewPhotosData.belongsTo(Review, { foreignKey: 'review_id' });
-      //             let result = {};
-      //           })
-      //           .catch((err) => console.error('Error connecting to "review_photos" table!: ', err));
-      //       })
-      //       .catch((err) => console.error('Error connecting to "reviews" table!: ', err));
-      //   })
-      //   .catch((err) => console.error('Error connecting to database!: ', err));
     }
   },
   getReviewsMeta: (req, res) => {
@@ -234,30 +251,30 @@ module.exports = {
   }
 };
 
-const testFunction = () => {
-  connectDatabase()
-    .then((sequelize) => {
-      connectCharacteristicReviewsTable(sequelize)
-        .then((data) => {
-          data.findAll({where: {
-            id: 10
-          }})
-            .then((result) => {
-              console.log('this is the result: ', result[0].dataValues);
-              console.log(new Date().toISOString());
-            })
-            .catch((err) => {
-              console.error(err);
-            })
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-};
+// const testFunction = () => {
+//   connectDatabase()
+//     .then((sequelize) => {
+//       connectCharacteristicReviewsTable(sequelize)
+//         .then((data) => {
+//           data.findAll({where: {
+//             id: 10
+//           }})
+//             .then((result) => {
+//               console.log('this is the result: ', result[0].dataValues);
+//               console.log(new Date().toISOString());
+//             })
+//             .catch((err) => {
+//               console.error(err);
+//             })
+//         })
+//         .catch((err) => {
+//           console.error(err);
+//         })
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//     });
+// };
 
 // testFunction();
 
