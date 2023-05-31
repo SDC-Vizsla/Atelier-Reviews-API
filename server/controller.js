@@ -158,12 +158,14 @@ module.exports = {
     let startTime = performance.now();
 
     if (!req.query.product_id || req.query.product_id > 1000011) {
-      return res.status(500).send('Internal Server Error');
+      return res.sendStatus(500);
     } else {
       let page = req.query.page || 1;
       let count = req.query.count || 5;
-      let sort = req.query.sort || [['helpfulness', 'DESC']];
       let product_id = req.query.product_id;
+
+      //figure out how to sort newest and relevant before sending in res.send(queryResponse)
+      let sort = req.query.sort;
 
       connectDatabase()
         .then((sequelize) => {
@@ -190,7 +192,7 @@ module.exports = {
                     }],
                     limit: count,
                     offset: (page - 1) * count,
-                    order: sort
+                    order: [['helpfulness', 'DESC']]
                   })
                     .then((reviews) => {
                       reviews.map((review) => {
@@ -216,18 +218,22 @@ module.exports = {
                           reviewTemp.photos.push(photoTemp);
                         });
 
+                        //sort the reviews here if sort params is defined
+                        //relevance -> content length
+                        //newest -> post date
+                        reviewTemp.photos.sort((a, b) => a.id - b.id);
                         queryResponse.results.push(reviewTemp);
                       });
 
                       let endTime = performance.now();
                       let time = ((endTime - startTime)/1000).toFixed(3);
-                      console.log('time lapsed during search query: ', time)
+                      console.log('time lapsed during search query: ', time);
 
                       res.send(queryResponse);
                     })
                     .catch((err) => {
                       console.error('Error retrieving reviews:', err);
-                      res.status(500).send('Internal Server Error');
+                      res.sendStatus(500);
                     });
                 })
                 .catch((err) => console.error('Error connecting to "review_photos" table!: ', err))
