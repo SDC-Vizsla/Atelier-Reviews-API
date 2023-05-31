@@ -1,9 +1,10 @@
 require('dotenv').config();
 const {Sequelize, DataTypes} = require('sequelize');
 
-const sequelize = new Sequelize(`postgres://${process.env.USERNAME}:${process.env.PASSWORD}@${process.env.HOST}:${process.env.PORT}/${process.env.DATABASE}`);
+sequelize = new Sequelize(`postgres://${process.env.USERNAME}:${process.env.PASSWORD}@${process.env.HOST}:${process.env.PORT}/${process.env.DATABASE}`);
 
 module.exports = {
+  sequelize: sequelize,
   Reviews: sequelize.define('reviews', {
     id: {
       type: DataTypes.INTEGER,
