@@ -24,6 +24,7 @@ module.exports = {
     Reviews.findAll({
       where: {
         product_id: product_id,
+        reported: false
       },
       include: [
         {
@@ -273,6 +274,8 @@ module.exports = {
       .catch((err) => console.error('Error counting reviews rows!: ', err));
   },
   upvoteReview: (req, res) => {
+    const startTime = performance.now();
+
     if (!req.params.review_id) {
       return res.sendStatus(400);
     }
@@ -283,16 +286,26 @@ module.exports = {
     )
       .then(() => {
         res.sendStatus(204);
+
+        const endTime = performance.now();
+        const time = ((endTime - startTime) / 1000).toFixed(3);
+        console.log("time elapsed during search query: ", time);
       })
       .catch((err) => console.error('Error upvoting review!: ', err));
   },
   reportReview: (req, res) => {
+    const startTime = performance.now();
+
     Reviews.update(
       {reported: true},
       {where: { id: Number(req.params.review_id) }}
     )
       .then(() => {
         res.sendStatus(204);
+
+        const endTime = performance.now();
+        const time = ((endTime - startTime) / 1000).toFixed(3);
+        console.log("time elapsed during search query: ", time);
       })
       .catch((err) => console.error('Error reporting review!: ', err));
   }

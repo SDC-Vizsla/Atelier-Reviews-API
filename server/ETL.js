@@ -108,10 +108,16 @@ const createSchema = async () => {
       if (err) {
         console.error ('error dropping tables!: ', err);
       } else {
-          await client.query(createReviewsTable, (err) => {
+        await client.query(createReviewsTable, (err) => {
           if (err) {
             console.error('error creating "reviews" table!: ', err);
           } else {
+            client.query(`CREATE INDEX idx_product_id ON ${process.env.SCHEMA}.reviews (product_id)`, async(err) => {
+              if (err) {
+                console.error('Error creating indexes in "reviews" table', err);
+              }
+            });
+
             console.log('Table "reviews" created!');
           }
         });
@@ -120,6 +126,12 @@ const createSchema = async () => {
           if (err) {
             console.error('error creating "review_photos" table!: ', err);
           } else {
+            client.query(`CREATE INDEX idx_review_id ON ${process.env.SCHEMA}.review_photos (review_id)`, async(err) => {
+              if (err) {
+                console.error('Error creating indexes in "review_photos" table', err);
+              }
+            });
+
             console.log('Table "review_photos" created!');
           }
         });
@@ -136,6 +148,12 @@ const createSchema = async () => {
           if (err) {
             console.error('error creating "characteristic_reviews"');
           } else {
+            client.query(`CREATE INDEX idx_characteristic_id ON ${process.env.SCHEMA}.characteristic_reviews (characteristic_id)`, async(err) => {
+              if (err) {
+                console.error('Error creating indexes in "characteristic_reviews" table', err);
+              }
+            });
+
             console.log('Table "characteristic_reviews" created!');
           }
         })
