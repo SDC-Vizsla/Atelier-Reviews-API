@@ -5,6 +5,8 @@ Reviews.hasMany(ReviewPhotos, { foreignKey: 'review_id' });
 ReviewPhotos.belongsTo(Reviews, { foreignKey: 'review_id' });
 Characteristics.hasMany(CharacteristicReviews, { foreignKey: 'characteristic_id' });
 CharacteristicReviews.belongsTo(Characteristics, { foreignKey: 'characteristic_id' });
+Reviews.hasMany(CharacteristicReviews, { foreignKey: 'review_id' });
+CharacteristicReviews.belongsTo(Reviews, { foreignKey: 'review_id' });
 
 module.exports = {
   getReviews: (req, res) => {
@@ -77,7 +79,7 @@ module.exports = {
           console.log('time elapsed during search query: ', time);
         })
         .catch((err) => {
-          console.error('Error retrieving reviews:', err);
+          console.error('Error retrieving reviews!:', err);
           res.sendStatus(500);
         });
     }
@@ -167,18 +169,29 @@ module.exports = {
               console.log('time elapsed during search query: ', time);
             })
             .catch((err) => {
-              console.error('Error retrieving characteristic reviews:', err);
+              console.error('Error retrieving characteristic reviews!:', err);
               res.sendStatus(500);
             });
         })
         .catch((err) => {
-          console.error('Error retrieving reviews:', err);
+          console.error('Error retrieving reviews!:', err);
           res.sendStatus(500);
         });
     }
   },
   postReview: (req, res) => {
-    if (!req.body.product_id || !req.body.rating || !req.body.summary || !req.body.body || !req.body.name || !req.body.email) {
+
+    // console.log('this is req', req.body);
+    if (
+      !req.body.product_id ||
+      !req.body.rating ||
+      !req.body.summary ||
+      !req.body.body ||
+      !req.body.name ||
+      !req.body.email ||
+      !req.body.photos ||
+      !req.body.characteristics
+    ) {
       return res.sendStatus(400);
     }
 
@@ -186,28 +199,50 @@ module.exports = {
     const rating = req.body.rating;
     const summary = req.body.summary;
     const body = req.body.body;
+    const recommend = req.body.recommend || false;
     const name = req.body.name;
     const email = req.body.email;
+    const photos = req.body.photos;
+    const characteristics = req.body.characteristics;
 
-    Reviews.create({
-      product_id: product_id,
-      rating: rating,
-      summary: summary,
-      body: body,
-      reviewer_name: name,
-      reviewer_email: email,
-      recommend: req.body.recommend || false,
-      response: null,
-      helpfulness: 0,
-      date: new Date(),
-    })
-      .then((review) => {
-        res.sendStatus(201);
+    Reviews.count()
+      .then((reviewCount) => {
+        // Create the review in the Reviews table
+        Reviews.create({
+          id: reviewCount + 1,
+          product_id: product_id,
+          rating: rating,
+          date: new Date().toISOString(),
+          summary: summary,
+          body: body,
+          recommend: recommend,
+          reviewer_name: name,
+          reviewer_email: email,
+          response: null,
+          helpfulness: 0
+        })
+          .then((review) => {
+            if (photos.length > 0) {
+              ReviewPhotos.count()
+                .then((photoCount) => {
+                  console.log('thisis photoCount', photoCount)
+                  photos.map((photo) => {
+                    ReviewPhotos.create({
+                      id: photoCount += 1,
+                      review_id: review.dataValues.id,
+                      url: photo
+                    })
+                      .catch((err) => console.error('', err))
+                  })
+                })
+                .catch((err) => console.error('Error counting review_photos rows!: ', err))
+            }
+
+
+          })
+          .catch((err) => console.error('Error creating new Review!: ', err))
       })
-      .catch((err) => {
-        console.error("Error creating review:", err);
-        res.sendStatus(500);
-      });
+      .catch((err) => console.error('Error counting reviews rows!: ', err));
   },
   upvoteReview: (req, res) => {
 
@@ -216,3 +251,35 @@ module.exports = {
 
   }
 };
+
+
+  // .then((review) => {
+  //   console.log('hjfkashfkjashfa', review);
+  //   reviewId = review.id; // Store the ID of the newly created review
+
+  //   // Create the review photos in the ReviewPhotos table
+  //   const photoPromises = photos.map((photo) =>
+  //     ReviewPhotos.create({
+  //       review_id: reviewId,
+  //       url: photo,
+  //     })
+  //   );
+
+  //   return Promise.all(photoPromises); // Wait for all photo creations to complete
+  // })
+  // .then(() => {
+  //   // Create/update the characteristic reviews in the CharacteristicReviews table
+  //   const characteristicPromises = Object.entries(characteristics).map(([charId, value]) =>
+  //     CharacteristicReviews.findOrCreate({
+  //       where: {
+  //         review_id: reviewId,
+  //         characteristic_id: charId,
+  //       },
+  //       defaults: {
+  //         value: value,
+  //       },
+  //     })
+  //   );
+
+  //   return Promise.all(characteristicPromises); // Wait for all characteristic creations/updates to complete
+  // })
