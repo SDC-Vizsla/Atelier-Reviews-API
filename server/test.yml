@@ -6,7 +6,7 @@ config:
 
     #   name: Warm up
     - duration: 180
-      arrivalRate: 10
+      arrivalRate: 50
       # rampTo: 1000
       name: Ramp up load
     # - duration: 90
