@@ -5,9 +5,7 @@ This is the repository for the Atelier-Reviews-API project, an API for managing 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage](#usage)
 - [Endpoints](#endpoints)
-- [Contributing](#contributing)
 
 ## Prerequisites
 Before running the Atelier-Reviews-API, ensure you have the following installed:
@@ -64,26 +62,3 @@ The Atelier-Reviews-API provides the following endpoints:
 -   (GET)`/reviews/meta`: Retrieves review metadata for a specific product.
 -   (PUT)`/reviews/:review_id/helpful`: Marks a review as helpful.
 -   (PUT)`/reviews/:review_id/report`: Reports a review.
-
-
-## Contributing
-Contributions to the Atelier-Reviews-API are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/SDC-Vizsla/Atelier-Reviews-API/issues).
-
-If you would like to contribute code, follow these steps:
-
-1.  Fork the repository.
-
-2.  Create a new branch for your feature/bug fix:
-
-```bash
-git checkout -b my-feature
-```
-3.  Make your changes and commit them:
-```bash
-git commit -m 'Add new feature'
-```
-4.  Push the branch to your forked repository:
-```bash
-git push origin my-feature
-```
-5.  Open a pull request on the main repository.
