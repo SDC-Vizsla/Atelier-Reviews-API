@@ -1,9 +1,7 @@
 # SDC-Reviews-API
-
 This is the repository for the SDC-Reviews-API project, an API for managing and retrieving product reviews.
 
 ## Table of Contents
-
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -13,14 +11,12 @@ This is the repository for the SDC-Reviews-API project, an API for managing and 
 - [License](#license)
 
 ## Prerequisites
-
 Before running the SDC-Reviews-API, ensure you have the following installed:
 
 - [Node.js](https://nodejs.org) (v12 or later)
 - [PostgreSQL](https://www.postgresql.org)
 
 ## Installation
-
 1. Clone the repository:
 
    ```bash
@@ -35,6 +31,7 @@ Before running the SDC-Reviews-API, ensure you have the following installed:
 	```bash
 	npm install
 	```
+
 ## Configuration
 The SDC-Reviews-API requires a configuration file for connecting to the PostgreSQL database. Follow these steps to configure the application:
 
@@ -47,28 +44,31 @@ The SDC-Reviews-API requires a configuration file for connecting to the PostgreS
 	DATABASE=<your_database_name>
 	PASSWORD=<your_database_password>
 	PORT=<your_database_port>
+	APIPORT = <your_locahost_port>
+	EXISTDB = <your_existing_database_name>
+	SCHEMA = 'reviewschema'
 	```
 Replace `<your_database_username>`, `<your_database_host>`, `<your_database_name>`, `<your_database_password>`, and `<your_database_port>` with the appropriate values for your PostgreSQL database.
+
 ## Configuration
 To start the SDC-Reviews-API server, run the following command:
 ```bash
-npm start
+npm run start
 ```
 The server will start running at `http://localhost:3000`.
+
 ## Endpoints
 The SDC-Reviews-API provides the following endpoints:
 
--   `/api/reviews`: Retrieves all reviews for a specific product.
--   `/api/reviews/:id`: Retrieves a specific review by ID.
--   `/api/reviews/:id/meta`: Retrieves review metadata for a specific product.
--   `/api/reviews/:id/helpful`: Marks a review as helpful.
--   `/api/reviews/:id/report`: Reports a review.
--   `/api/reviews`: Creates a new review.
+-   (GET)`/reviews`: Retrieves all reviews for a specific product.
+-   (POST)`/reviews`: Creates a new review.
+-   `/reviews/meta`: Retrieves review metadata for a specific product.
+-   `/reviews/:review_id/helpful`: Marks a review as helpful.
+-   `/reviews/:review_id/report`: Reports a review.
 
 For detailed information about each endpoint and their request/response formats, please refer to the [API documentation](https://chat.openai.com/c/docs/api.md).
 
 ## Contributing
-
 Contributions to the SDC-Reviews-API are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/SDC-Vizsla/SDC-Reviews-API/issues).
 
 If you would like to contribute code, follow these steps:
@@ -82,15 +82,13 @@ git checkout -b my-feature
 ```
 3.  Make your changes and commit them:
 ```bash
-git commit -am 'Add new feature'
+git commit -m 'Add new feature'
 ```
 4.  Push the branch to your forked repository:
 ```bash
 git push origin my-feature
 ```
 5.  Open a pull request on the main repository.
+
 ## License
 This project is licensed under the MIT License. See the [LICENSE](https://chat.openai.com/c/LICENSE) file for more details.
-```css
-Feel free to use this code as a complete README file for your SDC-Reviews-API repository.
-```
