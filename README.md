@@ -54,7 +54,7 @@ To start the Atelier-Reviews-API server, run the following command:
 ```bash
 npm run start
 ```
-The server will start running at `http://localhost:3000`.
+The server will start running at `http://localhost:<your_locahost_port>`.
 
 ## Endpoints
 The Atelier-Reviews-API provides the following endpoints:
