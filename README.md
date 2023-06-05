@@ -1,5 +1,5 @@
-# SDC-Reviews-API
-This is the repository for the SDC-Reviews-API project, an API for managing and retrieving product reviews.
+# Atelier-Reviews-API
+This is the repository for the Atelier-Reviews-API project, an API for managing and retrieving product reviews.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -8,10 +8,9 @@ This is the repository for the SDC-Reviews-API project, an API for managing and 
 - [Usage](#usage)
 - [Endpoints](#endpoints)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Prerequisites
-Before running the SDC-Reviews-API, ensure you have the following installed:
+Before running the Atelier-Reviews-API, ensure you have the following installed:
 
 - [Node.js](https://nodejs.org) (v12 or later)
 - [PostgreSQL](https://www.postgresql.org)
@@ -20,12 +19,12 @@ Before running the SDC-Reviews-API, ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/SDC-Vizsla/SDC-Reviews-API.git
+   git clone https://github.com/SDC-Vizsla/Atelier-Reviews-API.git
    ```
 2. Navigate to the project directory:
 
    ```bash
-   cd SDC-Reviews-API
+   cd Atelier-Reviews-API
    ```
 3. Install the dependencies:
 	```bash
@@ -33,7 +32,7 @@ Before running the SDC-Reviews-API, ensure you have the following installed:
 	```
 
 ## Configuration
-The SDC-Reviews-API requires a configuration file for connecting to the PostgreSQL database. Follow these steps to configure the application:
+The Atelier-Reviews-API requires a configuration file for connecting to the PostgreSQL database. Follow these steps to configure the application:
 
 1.  Create a `.env` file in the root directory of the project.
 
@@ -51,25 +50,24 @@ The SDC-Reviews-API requires a configuration file for connecting to the PostgreS
 Replace `<your_database_username>`, `<your_database_host>`, `<your_database_name>`, `<your_database_password>`, and `<your_database_port>` with the appropriate values for your PostgreSQL database.
 
 ## Configuration
-To start the SDC-Reviews-API server, run the following command:
+To start the Atelier-Reviews-API server, run the following command:
 ```bash
 npm run start
 ```
 The server will start running at `http://localhost:3000`.
 
 ## Endpoints
-The SDC-Reviews-API provides the following endpoints:
+The Atelier-Reviews-API provides the following endpoints:
 
 -   (GET)`/reviews`: Retrieves all reviews for a specific product.
 -   (POST)`/reviews`: Creates a new review.
--   `/reviews/meta`: Retrieves review metadata for a specific product.
--   `/reviews/:review_id/helpful`: Marks a review as helpful.
--   `/reviews/:review_id/report`: Reports a review.
+-   (GET)`/reviews/meta`: Retrieves review metadata for a specific product.
+-   (PUT)`/reviews/:review_id/helpful`: Marks a review as helpful.
+-   (PUT)`/reviews/:review_id/report`: Reports a review.
 
-For detailed information about each endpoint and their request/response formats, please refer to the [API documentation](https://chat.openai.com/c/docs/api.md).
 
 ## Contributing
-Contributions to the SDC-Reviews-API are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/SDC-Vizsla/SDC-Reviews-API/issues).
+Contributions to the Atelier-Reviews-API are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/SDC-Vizsla/Atelier-Reviews-API/issues).
 
 If you would like to contribute code, follow these steps:
 
@@ -89,6 +87,3 @@ git commit -m 'Add new feature'
 git push origin my-feature
 ```
 5.  Open a pull request on the main repository.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](https://chat.openai.com/c/LICENSE) file for more details.
