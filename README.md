@@ -1,5 +1,5 @@
 # Atelier-Reviews-API
-This is the repository for the Atelier-Reviews-API project, an API for managing and retrieving product reviews.
+High-performing and reliable back-end architecture designed using optimization techniques and performance testing.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
