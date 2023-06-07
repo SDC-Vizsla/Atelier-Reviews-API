@@ -47,8 +47,7 @@ The Atelier-Reviews-API requires a configuration file for connecting to the Post
 	```
 Replace `<your_database_username>`, `<your_database_host>`, `<your_database_name>`, `<your_database_password>`, and `<your_database_port>` with the appropriate values for your PostgreSQL database.
 
-## Endpoints
-To start the Atelier-Reviews-API server, run the following command:
+3. To start the Atelier-Reviews-API server, run the following command:
 ```bash
 npm run start
 ```
